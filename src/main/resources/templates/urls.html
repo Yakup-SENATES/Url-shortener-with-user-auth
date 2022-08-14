@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>List Urls</title>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container text-center">
+    <div>
+        <form th:action="@{/logout}" method="post">
+            <p>
+                Welcome <b>Urls Page</b>
+            </p>
+            <input type="submit" value="Sign Out" />
+            <a  href="/">home</a>
+            <a  href="/users">users</a>
+        </form>
+    </div>
+    <div>
+        <h1>List of Urls</h1>
+    </div>
+
+    <div>
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+            <tr>
+                <th>Real URl</th>
+                <th>Short URL</th>
+                <th>Action</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="url: ${listUrls}">
+                <td th:text="${url.originalUrl}">Url</td>
+                <td th:text="${url.shortLink}">shorten</td>
+                <td> <a th:href="@{${url.shortLink}}">Go</a> </td>
+                <form th:action="@{'/delete/' + ${url.shortLink}}" method="post">
+                    <td> <input type="submit" value="Delete" /> </td>
+                </form>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
