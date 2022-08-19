@@ -17,26 +17,26 @@ public class UrlService {
 
     private final UrlRepository urlRepository;
 
-    public UrlService(UrlRepository urlRepository, UserService userService) {
+    public UrlService(UrlRepository urlRepository) {
         this.urlRepository = urlRepository;
     }
 
-    public Set<Url> getUrl(User user){
+    public Set<Url> getUrl(User user) {
         return urlRepository.findByUser(user);
     }
 
-    public Url generateShortLink(UrlDto urlDto, User user){
-        if (StringUtils.isNotEmpty(urlDto.getUrl())){
-        String encodeUrl = encodeUrl(urlDto.getUrl());
-        Url urlToPersist = new Url();
-        urlToPersist.setShortLink(encodeUrl);
-        urlToPersist.setOriginalUrl(urlDto.getUrl());
-        urlToPersist.setCreationDate(LocalDateTime.now());
-        urlToPersist.setExpirationDate(getExpirationDate(urlDto.getExpirationDate(),urlToPersist.getCreationDate()));
-        urlToPersist.setUser(user);
-        return persistShortLink(urlToPersist);
-    }
-
+    public Url generateShortLink(UrlDto urlDto, User user) {
+        String urlFromUrlDto = urlDto.getUrl();
+        if (StringUtils.isNotEmpty(urlFromUrlDto)) {
+            String encodeUrl = encodeUrl(urlFromUrlDto);
+            Url urlToPersist = new Url();
+            urlToPersist.setShortLink(encodeUrl);
+            urlToPersist.setOriginalUrl(urlFromUrlDto);
+            urlToPersist.setCreationDate(LocalDateTime.now());
+            urlToPersist.setExpirationDate(getExpirationDate(urlDto.getExpirationDate(), urlToPersist.getCreationDate()));
+            urlToPersist.setUser(user);
+            return persistShortLink(urlToPersist);
+        }
         return null;
     }
 
@@ -46,15 +46,18 @@ public class UrlService {
         encodeUrl = Hashing.murmur3_32().hashString(url.concat(time.toString()), StandardCharsets.UTF_8).toString();
         return encodeUrl;
     }
+
     private LocalDateTime getExpirationDate(String expirationDate, LocalDateTime creationDate) {
-        if (StringUtils.isBlank(expirationDate)){
+        if (StringUtils.isBlank(expirationDate)) {
             return creationDate.plusSeconds(60);
         }
         return LocalDateTime.parse(expirationDate);
     }
+
     public Url persistShortLink(Url url) {
         return urlRepository.save(url);
     }
+
     public Url getEncodedUrl(String url) {
         return urlRepository.findByShortLink(url);
     }
@@ -62,10 +65,9 @@ public class UrlService {
     public void deleteShortLink(Url url) {
         try {
             urlRepository.delete(url);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
-
 
     }
 }

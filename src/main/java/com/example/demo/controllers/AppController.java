@@ -8,7 +8,6 @@ import com.example.demo.model.User;
 import com.example.demo.services.CurrentUserService;
 import com.example.demo.services.UrlService;
 import com.example.demo.services.UserService;
-import com.example.demo.userDetails.CustomUserDetailService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +32,8 @@ public class AppController {
     private final CurrentUserService currentUserService;
 
 
-    public AppController(UserService userService, UrlService urlService, CustomUserDetailService customUserDetailService, CurrentUserService currentUserService) {
+    public AppController(UserService userService, UrlService urlService,
+                         CurrentUserService currentUserService) {
         this.userService = userService;
         this.urlService = urlService;
         this.currentUserService = currentUserService;
@@ -92,13 +92,13 @@ public class AppController {
             urlResponseDto.setOriginalUrl(urlToRet.getOriginalUrl());
             urlResponseDto.setExpirationDate(urlToRet.getExpirationDate());
             urlResponseDto.setShortUrl(urlToRet.getShortLink());
-            return new ResponseEntity<UrlResponseDto>(urlResponseDto, HttpStatus.OK);
+            return new ResponseEntity<>(urlResponseDto, HttpStatus.OK);
         }
 
         UrlErrorResponseDto urlErrorResponseDto = new UrlErrorResponseDto();
         urlErrorResponseDto.setStatus("404");
         urlErrorResponseDto.setError("There was an error processing your request. Please try again.");
-        return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponseDto,HttpStatus.OK);
+        return new ResponseEntity<>(urlErrorResponseDto, HttpStatus.OK);
     }
 
 
@@ -109,7 +109,7 @@ public class AppController {
             UrlErrorResponseDto urlErrorResponseDto = new UrlErrorResponseDto();
             urlErrorResponseDto.setError("Invalid Url");
             urlErrorResponseDto.setStatus("400");
-            return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponseDto,HttpStatus.OK);
+            return new ResponseEntity<>(urlErrorResponseDto, HttpStatus.OK);
         }
         Url urlToRet = urlService.getEncodedUrl(shortLink);
 
@@ -118,7 +118,7 @@ public class AppController {
             UrlErrorResponseDto urlErrorResponseDto = new UrlErrorResponseDto();
             urlErrorResponseDto.setError("Url does not exist or it might have expired! Please try again.");
             urlErrorResponseDto.setStatus("400");
-            return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponseDto,HttpStatus.OK);
+            return new ResponseEntity<>(urlErrorResponseDto, HttpStatus.OK);
         }
 
         if(urlToRet.getExpirationDate().isBefore(LocalDateTime.now()))
@@ -127,7 +127,7 @@ public class AppController {
             UrlErrorResponseDto urlErrorResponseDto = new UrlErrorResponseDto();
             urlErrorResponseDto.setError("Url Expired. Please try generating a fresh one.");
             urlErrorResponseDto.setStatus("200");
-            return new ResponseEntity<UrlErrorResponseDto>(urlErrorResponseDto,HttpStatus.OK);
+            return new ResponseEntity<>(urlErrorResponseDto, HttpStatus.OK);
         }
 
         response.sendRedirect(urlToRet.getOriginalUrl());
@@ -141,7 +141,7 @@ public class AppController {
         try {
             urlService.deleteShortLink(url);
         }catch (Exception e){
-            System.out.println(e);
+            throw new RuntimeException("Error deleting url");
         }
         return "urls";
     }
